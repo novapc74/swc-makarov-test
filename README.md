@@ -17,3 +17,8 @@ make up
 make migrate
 make seed
 ```
+
+### 3. Test
+```shell
+make test
+```

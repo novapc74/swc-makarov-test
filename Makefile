@@ -17,5 +17,9 @@ down:
 
 migrate:
 	./vendor/bin/sail artisan migrate
+
 seed:
 	./vendor/bin/sail artisan db:seed
+
+test:
+	./vendor/bin/sail artisan test
