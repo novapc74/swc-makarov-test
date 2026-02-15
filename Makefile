@@ -1,36 +1,30 @@
 SAIL = ./vendor/bin/sail
-DOCKER_PHP = docker run --rm -u "$$(id -u):$$(id -g)" -v "`pwd`:/var/www/html" -w /var/www/html laravelsail/php82-composer:latest
+DOCKER_PHP = docker run --rm -u "$$(id -u):$$(id -g)" -v "$$(shell pwd):/var/www/html" -w /var/www/html laravelsail/php82-composer:latest
 
-.PHONY: install up down restart test seed check-overdue
+.PHONY: install up down restart test seed check-overdue worker
 
 install:
 	@test -f .env || cp .env.example .env
 	$(DOCKER_PHP) composer install
-	# Исправляем права (потребуется пароль sudo)
-	sudo chown -R $${USER}:33 storage bootstrap/cache
-	sudo chmod -R 775 storage bootstrap/cache
+	# Исправляем права на папки логов и кэша
+	sudo chmod -R 777 storage bootstrap/cache
 	$(SAIL) up -d
-	@echo "Waiting for Database..."
+	@echo "Waiting for database (10s)..."
 	@sleep 10
 	$(SAIL) artisan key:generate
 	$(SAIL) artisan migrate:fresh --seed
-	@echo "✅ Done!"
+	# Перезапускаем воркер, чтобы он подтянул новые настройки
+	$(SAIL) artisan queue:restart
 
 up:
 	$(SAIL) up -d
-
 down:
 	$(SAIL) down
-
-restart:
-	$(SAIL) stop
-	$(SAIL) up -d
-
 test:
 	$(SAIL) artisan test
-
+worker:
+	$(SAIL) artisan queue:work
 check-overdue:
-	$(SAIL) artisan app:check-overdue-tasks
-
+	$(SAIL) artisan tasks:check-overdue
 shell:
 	$(SAIL) shell
