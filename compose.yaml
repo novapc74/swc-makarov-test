@@ -69,13 +69,13 @@ services:
             timeout: 5s
 
     laravel.worker:
+        restart: always
         build:
             context: ./vendor/laravel/sail/runtimes/8.2
             dockerfile: Dockerfile
             args:
                 WWWGROUP: '${WWWGROUP:-1000}'
         image: sail-8.2/app
-        # ДОБАВЬ ЭТУ СТРОКУ, чтобы воркер видел настройки из .env
         env_file:
             - .env
         volumes:
@@ -85,7 +85,10 @@ services:
         depends_on:
             - pgsql
             - redis
-        entrypoint: [ "/usr/bin/php", "artisan", "queue:work" ]
+        # Используем working_dir и более простой вызов
+        working_dir: /var/www/html
+        entrypoint: [ "php", "artisan", "queue:work", "--tries=3" ]
+
 
     laravel.cron:
         build:
