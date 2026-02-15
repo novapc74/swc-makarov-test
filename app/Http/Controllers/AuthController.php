@@ -3,17 +3,31 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
-use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Hash;
+use App\Http\Requests\AuthUserRequest;
+use App\Http\Requests\StoreUserRequest;
 use Illuminate\Validation\ValidationException;
 
 class AuthController extends Controller
 {
+    public function register(StoreUserRequest $request): JsonResponse
+    {
+        $validated = $request->validated();
+
+        $validated['password'] = Hash::make($validated['password']);
+
+        $user = User::create($validated);
+
+        return response()->json([
+            'token' => $user->createToken('auth_token')->plainTextToken,
+        ], 201);
+    }
     /**
      * @throws ValidationException
      */
-    public function login(Request $request): JsonResponse
+    public function login(AuthUserRequest $request): JsonResponse
     {
         $request->validate([
             'email' => 'required|email',
@@ -29,7 +43,7 @@ class AuthController extends Controller
         }
 
         return response()->json([
-            'token' => $user->createToken('api-token')->plainTextToken,
+            'token' => $user->createToken('auth_token')->plainTextToken,
         ]);
     }
 
