@@ -85,7 +85,6 @@ services:
         depends_on:
             - pgsql
             - redis
-        # Используем working_dir и более простой вызов
         working_dir: /var/www/html
         entrypoint: [ "php", "artisan", "queue:work", "--tries=3" ]
 

@@ -26,3 +26,5 @@ check-overdue:
 	$(SAIL) artisan tasks:check-overdue
 shell:
 	$(SAIL) shell
+seed:
+	$(SAIL) artisan migrate:fresh --seed
