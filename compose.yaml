@@ -25,6 +25,8 @@ services:
             - pgsql
             - redis
             - mailpit
+            - laravel.worker
+            - laravel.cron
     pgsql:
         image: 'postgres:18-alpine'
         ports:
