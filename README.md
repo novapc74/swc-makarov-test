@@ -7,6 +7,7 @@ cd swc_test_makarov
 git clone git@github.com:novapc74/swc-makarov-test.git ./
 make vendor
 cp .env.example .env # установите свои переменные окружения
+make up
 make key-gen
 ```
 
