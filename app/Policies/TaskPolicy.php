@@ -19,9 +19,11 @@ class TaskPolicy
     /**
      * Determine whether the user can view the model.
      */
-    public function view(User $user, Task $task): bool
+    public function view(User $user, Task $task): Response
     {
-        return $user->is($task->user);
+        return $user->is($task->user)
+            ? Response::allow()
+            : Response::deny('Вы не владелец этой задачи!');
     }
 
     /**

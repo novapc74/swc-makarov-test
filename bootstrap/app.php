@@ -1,11 +1,11 @@
 <?php
 
+use Illuminate\Http\Request;
 use Illuminate\Foundation\Application;
 use App\Http\Middleware\ForceJsonResponse;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
-use Illuminate\Http\Request;
-use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
+use Symfony\Component\HttpFoundation\Response as SymfonyResponse;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -15,27 +15,27 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-
         $middleware->append(ForceJsonResponse::class);
-        // Указываем, куда отправлять неавторизованных пользователей
-        $middleware->authenticateSessions(); // если используете сессии
-
-        // Глобальная настройка для API: возвращать 401 вместо редиректа
-        $middleware->statefulApi();
-
-        // Самый надежный способ для чистого API:
-        $middleware->redirectTo(
-            fn () => response()->json(['message' => 'Unauthenticated.'], 401)
-        );
     })
     ->withExceptions(function (Exceptions $exceptions): void {
-        $exceptions->render(function (AccessDeniedHttpException $e, Request $request) {
-            if ($request->is('api/*')) {
+
+        $exceptions->respond(function (SymfonyResponse $response, Throwable $e, Request $request) {
+            if ($response->getStatusCode() === 403) {
                 return response()->json([
                     'status' => 'error',
-                    'message' => $e->getMessage() ?: 'Доступ запрещен',
+                    'message' => $e->getMessage() ?: 'У вас нет прав для этого действия.',
                     'code' => 403
                 ], 403);
             }
+
+            if ($response->getStatusCode() === 401) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Вы не авторизованы.',
+                    'code' => 401
+                ], 401);
+            }
+
+            return $response;
         });
     })->create();
