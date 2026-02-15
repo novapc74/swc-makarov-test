@@ -60,6 +60,12 @@ class TaskController extends Controller
     {
         $this->authorize('update', $task);
 
+        $data = $request->validated();
+
+        if (isset($data['due_date']) && $data['due_date'] >= now()->toDateString()) {
+            $data['is_overdue_notified'] = false;
+        }
+
         $task->update($request->validated());
 
         return new TaskResource($task);

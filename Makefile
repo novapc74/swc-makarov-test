@@ -1,25 +1,30 @@
-vendor:
-	docker run --rm \
-        -u "$$(id -u):$$(id -g)" \
-        -v "$$(pwd):/var/www/html" \
-        -w /var/www/html \
-        laravelsail/php82-composer:latest \
-        composer install
+SAIL = ./vendor/bin/sail
+DOCKER_PHP = docker run --rm -u "$$(id -u):$$(id -g)" -v "$$(shell pwd):/var/www/html" -w /var/www/html laravelsail/php82-composer:latest
 
-key-gen:
-	./vendor/bin/sail artisan key:generate
+.PHONY: install up down restart test seed check-overdue
+
+install:
+	@test -f .env || cp .env.example .env
+	$(DOCKER_PHP) composer install
+	$(SAIL) up -d
+	$(SAIL) artisan key:generate
+	$(SAIL) artisan migrate --seed
 
 up:
-	./vendor/bin/sail up -d
+	$(SAIL) up -d
 
 down:
-	./vendor/bin/sail down
+	$(SAIL) down
 
-migrate:
-	./vendor/bin/sail artisan migrate
-
-seed:
-	./vendor/bin/sail artisan db:seed
+restart:
+	$(SAIL) stop
+	$(SAIL) up -d
 
 test:
-	./vendor/bin/sail artisan test
+	$(SAIL) artisan test
+
+check-overdue:
+	$(SAIL) artisan app:check-overdue-tasks
+
+shell:
+	$(SAIL) shell

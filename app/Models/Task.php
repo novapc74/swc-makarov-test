@@ -14,7 +14,8 @@ class Task extends Model
         'description',
         'status',
         'due_date',
-        'user_id'
+        'user_id',
+        'is_overdue_notified'
     ];
 
     public function user(): BelongsTo

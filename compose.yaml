@@ -70,9 +70,12 @@ services:
         build:
             context: ./vendor/laravel/sail/runtimes/8.2
             dockerfile: Dockerfile
-            # ДОБАВЬТЕ ЭТИ СТРОКИ:
             args:
                 WWWGROUP: '${WWWGROUP:-1000}'
+        image: sail-8.2/app
+        # ДОБАВЬ ЭТУ СТРОКУ, чтобы воркер видел настройки из .env
+        env_file:
+            - .env
         volumes:
             - '.:/var/www/html'
         networks:
@@ -80,7 +83,25 @@ services:
         depends_on:
             - pgsql
             - redis
-        command: php artisan queue:work
+        entrypoint: [ "/usr/bin/php", "artisan", "queue:work" ]
+
+    laravel.cron:
+        build:
+            context: ./vendor/laravel/sail/runtimes/8.2
+            dockerfile: Dockerfile
+            args:
+                WWWGROUP: '${WWWGROUP:-1000}'
+        image: sail-8.2/app
+        # И СЮДА ТОЖЕ
+        env_file:
+            - .env
+        volumes:
+            - '.:/var/www/html'
+        networks:
+            - sail
+        depends_on:
+            - pgsql
+        entrypoint: [ "/usr/bin/php", "artisan", "schedule:work" ]
 
     mailpit:
         image: 'axllent/mailpit:latest'
