@@ -4,11 +4,12 @@ namespace App\Http\Controllers;
 
 use App\Models\Task;
 use App\Mail\TaskCreatedMail;
-use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\JsonResponse;
 use App\Http\Resources\TaskResource;
 use Illuminate\Support\Facades\Mail;
 use App\Http\Requests\StoreTaskRequest;
+use App\Http\Requests\UpdateTaskRequest;
+use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
 class TaskController extends Controller
@@ -30,13 +31,10 @@ class TaskController extends Controller
      */
     public function store(StoreTaskRequest $request): JsonResponse
     {
-        // Создаем задачу через связь пользователя
         $task = $request->user()->tasks()->create($request->validated());
 
-        // Отправляем письмо в очередь (Redis)
         Mail::to($request->user())->queue(new TaskCreatedMail($task));
 
-        // Возвращаем JSON через Resource, статус 201 и заголовок Location
         return (new TaskResource($task))
             ->response()
             ->setStatusCode(201)
@@ -58,7 +56,7 @@ class TaskController extends Controller
      * PUT/PATCH /api/tasks/{id}
      * @throws AuthorizationException
      */
-    public function update(StoreTaskRequest $request, Task $task): TaskResource
+    public function update(UpdateTaskRequest $request, Task $task): TaskResource
     {
         $this->authorize('update', $task);
 
@@ -79,6 +77,5 @@ class TaskController extends Controller
 
         return response()->json(null, 204);
     }
-
 }
 

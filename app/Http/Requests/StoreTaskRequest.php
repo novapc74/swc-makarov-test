@@ -24,9 +24,20 @@ class StoreTaskRequest extends FormRequest
     {
         return [
             'title' => 'required|string|max:255',
-            'description' => 'nullable|string',
-            'status' => 'nullable|in:pending,in_progress,completed',
-            'due_date' => 'nullable|date_format:Y-m-d',
+            'description' => 'required|nullable|string',
+            'status' => 'required|in:pending,in_progress,completed',
+            'due_date' => 'required|date_format:Y-m-d',
+        ];
+    }
+
+    public function messages(): array
+    {
+        return [
+            'status.in' => 'Выбранный статус недействителен. Допустимые значения: pending, in_progress, completed.',
+            'status.required' => 'Статус задачи обязательное поле.',
+            'title.required' => 'Заголовок задачи обязателен.',
+            'due_date.date_format' => 'Дата должна быть в формате ГГГГ-ММ-ДД.',
+            'due_date.required' => 'Дата обязательное поле в формате ГГГГ-ММ-ДД.',
         ];
     }
 }

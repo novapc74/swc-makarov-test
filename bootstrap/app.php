@@ -5,6 +5,7 @@ use Illuminate\Foundation\Application;
 use App\Http\Middleware\ForceJsonResponse;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
+use Illuminate\Validation\ValidationException;
 use Symfony\Component\HttpFoundation\Response as SymfonyResponse;
 
 return Application::configure(basePath: dirname(__DIR__))
@@ -18,6 +19,15 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->append(ForceJsonResponse::class);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
+
+        $exceptions->render(function (ValidationException $e, Request $request) {
+            return response()->json([
+                'status'  => 'error',
+                'message' => 'Ошибка валидации',
+                'errors'  => $e->errors(),
+                'code'    => 422,
+            ], 422);
+        });
 
         $exceptions->respond(function (SymfonyResponse $response, Throwable $e, Request $request) {
             if ($response->getStatusCode() === 403) {
