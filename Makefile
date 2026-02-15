@@ -7,16 +7,15 @@ install:
 	@test -f .env || cp .env.example .env
 	$(DOCKER_PHP) composer install
 	sudo chmod -R 777 storage bootstrap/cache
-	$(SAIL) up -d
+	$(SAIL) up -d laravel.test laravel.worker laravel.cron pgsql redis mailpit
 	@echo "Waiting for database..."
 	@sleep 10
 	$(SAIL) artisan key:generate
 	$(SAIL) artisan migrate:fresh --seed
-	$(SAIL) artisan queue:restart
-	@echo "✅ Установка завершена. Проверьте http://localhost"
+	@echo "✅ Установка завершена!"
 
 up:
-	$(SAIL) up -d
+	$(SAIL) up -d laravel.test laravel.worker laravel.cron
 down:
 	$(SAIL) down
 test:
