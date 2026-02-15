@@ -1,7 +1,7 @@
 SAIL = ./vendor/bin/sail
 DOCKER_PHP = docker run --rm -u "$$(id -u):$$(id -g)" -v "$$(shell pwd):/var/www/html" -w /var/www/html laravelsail/php82-composer:latest
 
-.PHONY: install up down restart test seed check-overdue
+.PHONY: install up down restart test seed check-overdue worker shell
 
 install:
 	@test -f .env || cp .env.example .env
