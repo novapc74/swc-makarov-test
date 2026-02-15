@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\Task;
 use App\Models\User;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
@@ -17,12 +18,18 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        DB::statement('TRUNCATE TABLE users CASCADE');
+        DB::statement('TRUNCATE TABLE tasks, users CASCADE');
 
-        User::factory()->create([
+        $user = User::factory()->create([
             'name' => 'SWC user',
             'email' => 'user@example.com',
             'password' => Hash::make('secret'),
         ]);
+
+        Task::factory(10)->create(['user_id' => $user->id]);
+
+        User::factory(5)
+            ->hasTasks(3)
+            ->create();
     }
 }
