@@ -6,6 +6,7 @@ use App\Models\Task;
 use App\Mail\TaskCreatedMail;
 use Illuminate\Http\JsonResponse;
 use App\Http\Resources\TaskResource;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Mail;
 use App\Http\Requests\StoreTaskRequest;
 use App\Http\Requests\UpdateTaskRequest;
@@ -32,6 +33,8 @@ class TaskController extends Controller
     public function store(StoreTaskRequest $request): JsonResponse
     {
         $task = $request->user()->tasks()->create($request->validated());
+
+        Cache::tags('user_' . auth()->id())->flush();
 
         Mail::to($request->user())->queue(new TaskCreatedMail($task));
 
@@ -67,6 +70,8 @@ class TaskController extends Controller
         }
 
         $task->update($request->validated());
+
+        Cache::tags('user_' . auth()->id())->flush();
 
         return new TaskResource($task);
     }
