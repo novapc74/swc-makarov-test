@@ -26,7 +26,7 @@ class StoreTaskRequest extends FormRequest
             'title' => 'required|string|max:255',
             'description' => 'required|nullable|string',
             'status' => 'required|in:pending,in_progress,completed',
-            'due_date' => 'required|date_format:Y-m-d',
+            'due_date' => 'required|date_format:Y-m-d|after_or_equal:today',
         ];
     }
 
@@ -38,6 +38,7 @@ class StoreTaskRequest extends FormRequest
             'title.required' => 'Заголовок задачи обязателен.',
             'due_date.date_format' => 'Дата должна быть в формате ГГГГ-ММ-ДД.',
             'due_date.required' => 'Дата обязательное поле в формате ГГГГ-ММ-ДД.',
+            'due_date.after_or_equal' => 'Срок выполнения не может быть в прошлом.',
         ];
     }
 }

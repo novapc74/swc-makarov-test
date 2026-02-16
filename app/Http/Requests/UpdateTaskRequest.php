@@ -28,7 +28,7 @@ class UpdateTaskRequest extends FormRequest
             'title' => 'nullable|string|max:255',
             'description' => 'nullable|string',
             'status' => 'nullable|in:' . implode(',', $this->statuses),
-            'due_date' => 'nullable|date_format:Y-m-d',
+            'due_date' => 'nullable|date_format:Y-m-d|after_or_equal:today',
         ];
     }
 
@@ -39,6 +39,7 @@ class UpdateTaskRequest extends FormRequest
             'title.string' => 'Формат заголовка - строка.',
             'description.string' => 'Формат описания задачи - строка.',
             'due_date.date_format' => 'Дата должна быть в формате ГГГГ-ММ-ДД.',
+            'due_date.after_or_equal' => 'Срок выполнения не может быть в прошлом.',
         ];
     }
 }
