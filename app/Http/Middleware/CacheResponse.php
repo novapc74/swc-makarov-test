@@ -20,8 +20,9 @@ class CacheResponse
             $userId = auth()->id();
             $url = $request->fullUrl();
             $key = "user_{$userId}_" . md5($url);
+            $tag = "user_$userId";
 
-            return Cache::tags(["user_{$userId}_tasks"])->remember($key, $ttl, function () use ($next, $request) {
+            return Cache::tags([$tag])->remember($key, $ttl, function () use ($next, $request) {
                 $response = $next($request);
                 $response->headers->set('X-Cache', 'HIT');
 
