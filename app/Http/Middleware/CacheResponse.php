@@ -18,21 +18,26 @@ class CacheResponse
     {
         if ($request->isMethod('get') && auth()->check()) {
             $userId = auth()->id();
-            $url = $request->fullUrl();
-            $key = "user_{$userId}_" . md5($url);
-            $tag = "user_$userId";
+            $key = "user_{$userId}_" . md5($request->fullUrl());
+            $tag = "user_{$userId}";
 
-            return Cache::tags([$tag])->remember($key, $ttl, function () use ($next, $request) {
-                $response = $next($request);
+            if (Cache::tags([$tag])->has($key)) {
+                $response = Cache::tags([$tag])->get($key);
                 $response->headers->set('X-Cache', 'HIT');
-
                 return $response;
-            });
+            }
+
+            $response = $next($request);
+
+            Cache::tags([$tag])->put($key, $response, $ttl);
+
+            $response->headers->set('X-Cache', 'MISS');
+            return $response;
         }
 
         $response = $next($request);
         $response->headers->set('X-Cache', 'MISS');
-
         return $response;
     }
+
 }
