@@ -86,6 +86,8 @@ class TaskController extends Controller
 
         $task->delete();
 
+        Cache::tags('user_' . auth()->id())->flush();
+
         return response()->json(null, 204);
     }
 }
